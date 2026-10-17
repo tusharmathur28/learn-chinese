@@ -224,3 +224,43 @@ nav button.active, .scenes button.active { background: var(--accent); border-col
 .tone-chart text { font-size: 10px; fill: var(--muted); }
 .tone-chart figcaption { font-size: 12px; color: var(--muted); text-align: center; margin-top: 4px; }
 .yours-key { color: var(--accent); }
+
+/* Read */
+.char-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.char {
+  width: 52px; height: 52px; font-size: 30px; border-radius: 12px; border: 2px solid var(--border);
+  background: var(--surface); display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.char.locked { opacity: 0.35; }
+.char.ready { border-color: var(--right); }
+.char.on { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); opacity: 1; }
+.comp { font-size: 1.2em; }
+.char-detail {
+  display: flex; gap: 16px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 14px; margin: 8px 0 12px; position: sticky; top: 8px; z-index: 5;
+}
+.big-char { font-size: 72px; line-height: 1; min-width: 80px; text-align: center; }
+.big-pinyin { font-size: 20px; }
+.char-detail .hint { margin: 6px 0; }
+.read-info { position: sticky; top: 8px; z-index: 5; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px 14px; margin-bottom: 10px; min-height: 44px; font-size: 20px; }
+.read-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding: 6px 0; }
+.read-text { flex: 1; margin: 0; font-size: 28px; line-height: 1.6; min-width: 0; }
+.rw { background: none; border: none; padding: 0; font-size: inherit; border-radius: 6px; }
+.rw:hover { background: color-mix(in srgb, var(--heard) 45%, transparent); }
+.read-actions { display: flex; gap: 6px; }
+.read-actions .secondary { padding: 6px 10px; }
+.read-pic { width: 100%; justify-content: center; font-size: 36px; }
+
+@media (max-width: 600px) {
+  .read-text { font-size: 24px; }
+  .big-char { font-size: 56px; min-width: 60px; }
+  .char { width: 46px; height: 46px; font-size: 26px; }
+}
+
+@media (max-width: 600px) {
+  /* One swipeable row of tabs instead of several wrapped rows */
+  nav { flex-wrap: nowrap; overflow-x: auto; width: 100%; scrollbar-width: none; }
+  nav::-webkit-scrollbar { display: none; }
+  nav button { flex: none; }
+  header { gap: 8px 12px; }
+}

@@ -7,6 +7,7 @@ import { STORIES } from '../src/data/stories.ts'
 import { tokenize, VOCAB } from '../src/data/tokenize.ts'
 import { syllables } from '../src/data/pinyin.ts'
 import { generateStory } from '../src/data/generate.ts'
+import { ALL_CHARS, FAMILIES, PICTOGRAPHS } from '../src/data/hanzi.ts'
 import { STORY_WORDS } from '../src/data/words.ts'
 
 const MIN_ENCOUNTERS = 10
@@ -54,6 +55,11 @@ for (const w of VOCAB) {
   } catch (e) {
     errors.push((e as Error).message)
   }
+}
+
+// 6. Reading families only list characters that are in the vocabulary.
+for (const ch of PICTOGRAPHS + FAMILIES.map((f) => f.chars).join('')) {
+  if (!ALL_CHARS.includes(ch)) errors.push(`character ${ch} in Read families is not in any vocabulary word`)
 }
 
 const lines = STORIES.reduce((n, s) => n + s.lines.length, 0)

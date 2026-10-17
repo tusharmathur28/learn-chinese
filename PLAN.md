@@ -120,6 +120,15 @@ Content (scenes, stories, words)  ──►  Learner model (per-word exposures/r
   - Voice variety: games/questions use a random zh-CN voice when the device has several.
   - 🎙️ Echo: opt-in record & compare per story line (no scoring, nothing uploaded).
   - Story order step after questions; 🎧 listening time tracked per day.
+- Adult-hybrid upgrades (after Gemini/Grok review; decided to keep browser voices, no pre-rendered audio):
+  - 听 logo + web app manifest (installable to home screen).
+  - 👂 Ears: tone (ˉˊˇˋ) and confusable-sound (q/x, zh/j, c/z…) discrimination, random voices; first step of Today.
+  - Circling: yes/no, 还是 either-or and who/what questions inside stories; optional English grammar note after.
+  - Pinyin shows spoken tones (3-3, 不, 一 sandhi); Echo draws your pitch over textbook tone shapes.
+  - Milestone 3 done as a template generator (5 scenarios, dialogue chunks 我想吃… / 你要喝什么？ / 给你！).
+  - 📝 Read: characters unlock after their word is heard 10×; grouped by component (艹 木 口 犭 …) and
+    pictographs; word families; read finished stories as text with tap-to-hear.
+- Deliberately not done: illustrated scenes (emoji suffice at current vocab), self-report "I know this" buttons.
 Run: `npm --prefix app run dev`, open http://localhost:5173 in Edge.
 
 ## Sources

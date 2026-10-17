@@ -14,12 +14,13 @@ import { Ears } from './Ears'
 import { ProgressView } from './ProgressView'
 import { Stories } from './Stories'
 import { Today } from './Today'
+import { Read } from './Read'
 
-type Tab = 'today' | 'explore' | 'games' | 'stories' | 'progress'
+type Tab = 'today' | 'explore' | 'games' | 'stories' | 'read' | 'progress'
 type Game = 'ears' | 'showme' | 'doit' | 'give'
 
 const TABS: Record<Tab, string> = {
-  today: '☀️ Today', explore: '👂 Explore', games: '🎮 Games', stories: '📖 Stories', progress: '📈 Progress',
+  today: '☀️ Today', explore: '👂 Explore', games: '🎮 Games', stories: '📖 Stories', read: '📝 Read', progress: '📈 Progress',
 }
 const GAMES: Record<Game, string> = { ears: '👂 Ears', showme: '👆 Show me', doit: '👋 Do it', give: '🤲 Give' }
 
@@ -154,6 +155,7 @@ export default function App() {
             onComplete={onStoryComplete}
           />
         )}
+        {tab === 'read' && <Read progress={progress} completed={storiesDone} say={say} onHeardText={onHeardText} />}
         {tab === 'progress' && <ProgressView progress={progress} listening={listening} onHear={hear} onReset={reset} />}
       </main>
     </div>
