@@ -11,14 +11,15 @@ const errors: string[] = []
 const counts = new Map<string, number>()
 
 for (const s of STORIES) {
-  const texts = [...s.lines.map((l) => l.zh), ...s.questions.map((q) => q.q), ...s.questions.flatMap((q) => q.options.map((o) => o.say ?? ''))]
+  const questions = [...s.questions, ...s.lines.flatMap((l) => l.ask ?? [])]
+  const texts = [...s.lines.map((l) => l.zh), ...questions.map((q) => q.q), ...questions.flatMap((q) => q.options.map((o) => o.say ?? ''))]
   for (const text of texts) {
     for (const t of tokenize(text)) {
       if (t.unknown) errors.push(`[${s.id}] unknown "${t.text}" in: ${text}`)
       if (t.word) counts.set(t.word.id, (counts.get(t.word.id) ?? 0) + 1)
     }
   }
-  s.questions.forEach((q, i) => {
+  questions.forEach((q, i) => {
     if (q.answer < 0 || q.answer >= q.options.length) errors.push(`[${s.id}] question ${i + 1} answer out of range`)
   })
 }

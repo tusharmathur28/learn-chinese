@@ -3,18 +3,23 @@
 //
 // `pic` is space-separated emoji. Prefix "+" = drawn big, "-" = drawn small, "·" = separator.
 
-export type Line = { zh: string; pic: string }
+/** `ask`: circling questions asked right after the line plays (TPRS-style extra repetitions). */
+export type Line = { zh: string; pic: string; ask?: Question[] }
 export type Option = { pic: string; say?: string }
 export type Question = { q: string; pic?: string; options: Option[]; answer: number }
-export type Story = { id: string; title: string; cover: string; lines: Line[]; questions: Question[] }
+/** `note`: optional short English explanation shown after the story — an adult shortcut, never before listening. */
+export type Story = { id: string; title: string; cover: string; lines: Line[]; questions: Question[]; note?: string }
 
-const L = (zh: string, pic: string): Line => ({ zh, pic })
+const L = (zh: string, pic: string, ask?: Question[]): Line => ({ zh, pic, ask })
 const opts = (...pics: string[]): Option[] => pics.map((pic) => ({ pic }))
 const yesNo = (yes = '对', no = '不对'): Option[] => [{ pic: '✅', say: yes }, { pic: '❌', say: no }]
+const people = () => opts('👦', '👧', '👩', '👨')
+const Q = (q: string, options: Option[], answer: number): Question => ({ q, options, answer })
 
 export const STORIES: Story[] = [
   {
     id: 'family', title: '这是小明', cover: '👦',
+    note: "这是 X = “this is X”. Put 吗 at the end to turn a statement into a yes/no question: 这是小明吗？ Answer 对 (right) or 不是 (no, it isn't). 的 marks possession: 小明的狗 = Xiaoming's dog.",
     lines: [
       L('这是小明。', '👦'),
       L('小明，小明。这是小明。', '👦'),
@@ -25,8 +30,10 @@ export const STORIES: Story[] = [
       L('这是小明吗？对，这是小明。', '👦 ✅'),
       L('这是小明吗？不，这不是小明。这是爸爸。', '👨'),
       L('这是妈妈吗？对，是妈妈。', '👩 ✅'),
-      L('这是小明的狗。', '👦 🐶'),
-      L('这是小红的猫。', '👧 🐱'),
+      L('这是小明的狗。', '👦 🐶',
+        [Q('这是小明的猫吗？', yesNo(), 1), Q('这是小明的狗还是小红的狗？', opts('👦', '👧'), 0), Q('这是谁的狗？', people(), 0)]),
+      L('这是小红的猫。', '👧 🐱',
+        [Q('这是小红的狗吗？', yesNo(), 1), Q('这是狗还是猫？', opts('🐶', '🐱'), 1)]),
       L('哪个是小明？哪个是小红？', '👦 👧'),
       L('小明和小红在家。', '👦 👧 🏠'),
       L('这是小明的狗吗？不是。这是小红的猫。', '👧 🐱'),
@@ -39,9 +46,11 @@ export const STORIES: Story[] = [
   },
   {
     id: 'apples', title: '小明喜欢吃苹果', cover: '🍎',
+    note: '喜欢 + verb + thing: 喜欢吃苹果 = likes eating apples. Negate with 不 in front: 不喜欢. Question words sit where the answer goes: 妈妈喜欢吃什么？ → 妈妈喜欢吃西瓜。 Same with 谁 (who): 谁喜欢吃香蕉？',
     lines: [
       L('这是小明。', '👦'),
-      L('小明喜欢吃苹果。', '👦 ❤️ 🍎'),
+      L('小明喜欢吃苹果。', '👦 ❤️ 🍎',
+        [Q('小明喜欢吃香蕉吗？', yesNo(), 1), Q('小明喜欢吃苹果还是香蕉？', opts('🍎', '🍌'), 0), Q('谁喜欢吃苹果？', people(), 0)]),
       L('小明很喜欢吃苹果。', '👦 ❤️ ❤️ 🍎'),
       L('小明喜欢吃香蕉吗？', '👦 ❓ 🍌'),
       L('不，小明不喜欢吃香蕉。', '👦 ❌ 🍌'),
@@ -50,7 +59,8 @@ export const STORIES: Story[] = [
       L('小红喜欢吃苹果吗？', '👧 ❓ 🍎'),
       L('不，小红不喜欢吃苹果。小红喜欢吃香蕉。', '👧 ❌ 🍎 · ❤️ 🍌'),
       L('妈妈喜欢吃什么？', '👩 ❓'),
-      L('妈妈喜欢吃西瓜。妈妈很喜欢吃西瓜。', '👩 ❤️ 🍉'),
+      L('妈妈喜欢吃西瓜。妈妈很喜欢吃西瓜。', '👩 ❤️ 🍉',
+        [Q('妈妈喜欢吃西瓜还是面条？', opts('🍉', '🍜'), 0)]),
       L('爸爸喜欢吃什么？爸爸喜欢吃面条。', '👨 ❤️ 🍜'),
       L('谁喜欢吃西瓜？妈妈！妈妈喜欢吃西瓜。', '👩 ❤️ 🍉'),
     ],
@@ -62,13 +72,16 @@ export const STORIES: Story[] = [
   },
   {
     id: 'drinks', title: '你要喝什么', cover: '🥛',
+    note: "要 = want (to); 不要 = don't want. 也 (also) goes right before the verb: 小明也喜欢吃蛋糕.",
     lines: [
       L('小明要喝牛奶。', '👦 🙋 🥛'),
       L('小明喜欢喝牛奶。小明很喜欢喝牛奶。', '👦 ❤️ 🥛'),
       L('小红要喝什么？', '👧 ❓'),
-      L('小红要喝水。', '👧 🙋 💧'),
+      L('小红要喝水。', '👧 🙋 💧',
+        [Q('小红要喝牛奶吗？', yesNo(), 1), Q('小红要喝水还是牛奶？', opts('💧', '🥛'), 0)]),
       L('小红不要喝牛奶。小红要喝水。', '👧 ❌ 🥛 · 🙋 💧'),
-      L('爸爸要喝茶。', '👨 🙋 🍵'),
+      L('爸爸要喝茶。', '👨 🙋 🍵',
+        [Q('谁要喝茶？', people(), 3), Q('爸爸要喝茶还是水？', opts('🍵', '💧'), 0)]),
       L('爸爸喜欢喝茶吗？对，爸爸很喜欢喝茶。', '👨 ❤️ 🍵'),
       L('妈妈要喝茶吗？', '👩 ❓ 🍵'),
       L('不，妈妈不要喝茶。妈妈要吃蛋糕！', '👩 🙋 🍰'),
@@ -85,14 +98,17 @@ export const STORIES: Story[] = [
   },
   {
     id: 'counting', title: '一只，两只，三只', cover: '🦆',
+    note: 'Numbers need a measure word before the noun: 一只狗, 两只鸟 (只 for animals), 两个苹果 (个 is the general one). “Two” before a measure word is 两, not 二. 几 asks “how many” and sits where the number goes. 有 is negated with 没: 没有, never 不有.',
     lines: [
       L('小明有一只狗。', '👦 🐶'),
       L('小红有一只猫。', '👧 🐱'),
       L('小红有狗吗？没有。小红没有狗。', '👧 ❌ 🐶'),
-      L('妈妈有两只鸟。', '👩 🐦 🐦'),
+      L('妈妈有两只鸟。', '👩 🐦 🐦',
+        [Q('妈妈有三只鸟吗？', yesNo(), 1), Q('妈妈有两只鸟还是三只鸟？', opts('🐦🐦', '🐦🐦🐦'), 0)]),
       L('一只，两只。妈妈有两只鸟。', '👩 🐦 🐦'),
       L('爸爸有几只鸭子？', '👨 ❓'),
-      L('爸爸有三只鸭子。', '👨 🦆 🦆 🦆'),
+      L('爸爸有三只鸭子。', '👨 🦆 🦆 🦆',
+        [Q('爸爸有几只鸭子？', opts('🦆', '🦆🦆', '🦆🦆🦆'), 2)]),
       L('一只，两只，三只。爸爸有三只鸭子。', '👨 🦆 🦆 🦆'),
       L('小明有几个苹果？小明有两个苹果。', '👦 🍎 🍎'),
       L('小红有几个香蕉？小红有三个香蕉。', '👧 🍌 🍌 🍌'),
@@ -109,13 +125,16 @@ export const STORIES: Story[] = [
   },
   {
     id: 'big-small', title: '大和小', cover: '🐘',
+    note: "Adjectives act like verbs, so there's no 是: 大象很大 = the elephant is big. 很 is often just glue here rather than a strong “very”. 和 joins nouns: 小明和小红.",
     lines: [
       L('这是大象。大象很大。', '+🐘'),
       L('这是猫。猫很小。', '-🐱'),
-      L('大象很大，猫很小。', '+🐘 -🐱'),
+      L('大象很大，猫很小。', '+🐘 -🐱',
+        [Q('大象很小吗？', yesNo(), 1), Q('猫很大还是很小？', opts('+🐱', '-🐱'), 1)]),
       L('小明的狗很大。小红的猫很小。', '+🐶 -🐱'),
       L('这是大苹果。这是小苹果。', '+🍎 -🍎'),
-      L('小明要大苹果。小红要小苹果。', '👦 +🍎 · 👧 -🍎'),
+      L('小明要大苹果。小红要小苹果。', '👦 +🍎 · 👧 -🍎',
+        [Q('小明要大苹果还是小苹果？', opts('+🍎', '-🍎'), 0), Q('谁要小苹果？', people(), 1)]),
       L('小明和小红喜欢吃苹果。', '👦 👧 ❤️ 🍎'),
       L('爸爸和妈妈喜欢吃西瓜。', '👨 👩 ❤️ 🍉'),
       L('西瓜很大！', '+🍉'),
@@ -131,14 +150,17 @@ export const STORIES: Story[] = [
   },
   {
     id: 'where', title: '在哪儿', cover: '🛏️',
+    note: 'X 在 place = X is at/in place. 在哪儿？ = where is it? “On the bed” is 床上: the thing first, then 上 (on top).',
     lines: [
-      L('小明看书。', '👦 👀 📖'),
+      L('小明看书。', '👦 👀 📖',
+        [Q('小明看电脑吗？', yesNo(), 1), Q('谁看书？', people(), 0)]),
       L('小红看什么？小红看电脑。', '👧 👀 💻'),
       L('妈妈看手机。', '👩 👀 📱'),
       L('爸爸看什么？爸爸看小明。', '👨 👀 👦'),
       L('小明的狗在哪儿？', '🐶 ❓'),
       L('狗在家。小明也在家。', '🐶 👦 🏠'),
-      L('小红的猫在哪儿？猫在床上。', '🐱 🛏️'),
+      L('小红的猫在哪儿？猫在床上。', '🐱 🛏️',
+        [Q('猫在椅子上吗？', yesNo(), 1), Q('猫在床上还是椅子上？', opts('🛏️', '🪑'), 0)]),
       L('猫很喜欢床。猫在床上。', '🐱 ❤️ 🛏️'),
       L('小明的书在哪儿？书在椅子上。', '📖 🪑'),
       L('妈妈的手机在哪儿？', '📱 ❓'),
@@ -156,14 +178,17 @@ export const STORIES: Story[] = [
   },
   {
     id: 'rain', title: '下雨了', cover: '🌧️',
+    note: "了 at the end of a sentence marks a change: 下雨了 = it's (started) raining; 不去了 = not going anymore. Time words like 今天 come before the verb, usually at the start.",
     lines: [
-      L('今天下雨了。', '🌧️'),
+      L('今天下雨了。', '🌧️',
+        [Q('今天下雨还是下雪？', opts('🌧️', '❄️'), 0)]),
       L('下雨了！下雨了！', '🌧️ 🌧️'),
       L('今天小明要去看大象。', '👦 ➡️ 🐘'),
       L('下雨了，小明不去了。', '🌧️ · 👦 ❌'),
       L('小明有雨伞吗？', '👦 ❓ ☂️'),
       L('没有。小明没有雨伞。', '👦 ❌ ☂️'),
-      L('妈妈在家。妈妈有雨伞。', '👩 🏠 ☂️'),
+      L('妈妈在家。妈妈有雨伞。', '👩 🏠 ☂️',
+        [Q('小明有雨伞吗？', yesNo('有', '没有'), 1), Q('谁有雨伞？', people(), 2)]),
       L('妈妈和小明去看大象。', '👩 👦 ☂️ ➡️ 🐘'),
       L('大象喜欢下雨。', '🐘 ❤️ 🌧️'),
       L('大象很大。小明很喜欢大象。', '👦 ❤️ +🐘'),
@@ -178,16 +203,19 @@ export const STORIES: Story[] = [
   },
   {
     id: 'panda', title: '熊猫吃什么', cover: '🐼',
+    note: 'Giving: who + 给 + to whom + what: 小红给猴子一个香蕉. 在 before a verb means “-ing”: 熊猫在吃什么？ = what is the panda eating?',
     lines: [
       L('今天小明和小红去看熊猫。', '👦 👧 ➡️ 🐼'),
       L('熊猫很大吗？对，熊猫很大。', '+🐼'),
       L('熊猫在吃什么？', '🐼 ❓'),
       L('熊猫不吃苹果。熊猫不吃香蕉。', '🐼 ❌ 🍎 🍌'),
-      L('熊猫吃竹子。', '🐼 😋 🎋'),
+      L('熊猫吃竹子。', '🐼 😋 🎋',
+        [Q('熊猫吃苹果吗？', yesNo(), 1), Q('熊猫吃竹子还是香蕉？', opts('🎋', '🍌'), 0)]),
       L('熊猫很喜欢吃竹子。', '🐼 ❤️ 🎋'),
       L('这是猴子。猴子喜欢吃香蕉。', '🐵 ❤️ 🍌'),
       L('小红有几个香蕉？小红有三个香蕉。', '👧 🍌 🍌 🍌'),
-      L('小红给猴子一个香蕉。', '👧 🍌 ➡️ 🐵'),
+      L('小红给猴子一个香蕉。', '👧 🍌 ➡️ 🐵',
+        [Q('小红给猴子什么？', opts('🍎', '🍌', '🎋'), 1), Q('小红给熊猫香蕉吗？', yesNo(), 1)]),
       L('猴子很喜欢！', '🐵 ❤️'),
       L('小明给熊猫一个苹果。熊猫不要！', '👦 🍎 ➡️ 🐼 ❌'),
       L('熊猫不喜欢吃苹果。熊猫喜欢吃竹子。', '🐼 ❌ 🍎 · ❤️ 🎋'),
@@ -200,11 +228,13 @@ export const STORIES: Story[] = [
   },
   {
     id: 'home', title: '小明的家', cover: '🏠',
+    note: '的 can stand in for the noun: 大的 = the big one, 小的 = the small one. 哪个 = which one.',
     lines: [
       L('这是小明的家。小明的家很大。', '+🏠'),
       L('小明和爸爸妈妈在家。', '👦 👨 👩 🏠'),
       L('小红也在家。', '👧 🏠'),
-      L('小明的书在哪儿？书在床上。', '📖 🛏️'),
+      L('小明的书在哪儿？书在床上。', '📖 🛏️',
+        [Q('书在椅子上吗？', yesNo(), 1), Q('书在床上还是椅子上？', opts('🛏️', '🪑'), 0)]),
       L('小明的狗在哪儿？狗在椅子上。', '🐶 🪑'),
       L('小红的猫在哪儿？猫也在椅子上！', '🐱 🐶 🪑'),
       L('这是两个帽子。一个大，一个小。', '+🧢 -🧢'),
@@ -212,7 +242,8 @@ export const STORIES: Story[] = [
       L('哪个是小红的帽子？小的是小红的。', '👧 -🧢'),
       L('小红有几个苹果？小红有三个苹果。', '👧 🍎 🍎 🍎'),
       L('小明也有苹果吗？没有。小明没有苹果。', '👦 ❌ 🍎'),
-      L('小红给小明一个苹果。', '👧 🍎 ➡️ 👦'),
+      L('小红给小明一个苹果。', '👧 🍎 ➡️ 👦',
+        [Q('谁给小明苹果？', people(), 1), Q('小红给小明苹果还是香蕉？', opts('🍎', '🍌'), 0)]),
       L('小明有一个苹果了！', '👦 🍎'),
     ],
     questions: [
@@ -224,6 +255,7 @@ export const STORIES: Story[] = [
   },
   {
     id: 'pandas', title: '今天去看熊猫', cover: '🎋',
+    note: '还是 = “or” in questions: 大熊猫还是小熊猫？ A verb + 了 marks something done: 看了熊猫 = saw the pandas.',
     lines: [
       L('今天小明和爸爸去看熊猫。', '👦 👨 ➡️ 🐼'),
       L('小红也去。妈妈不去，妈妈在家。', '👧 ➡️ 🐼 · 👩 🏠'),
@@ -232,11 +264,13 @@ export const STORIES: Story[] = [
       L('小熊猫也要吃竹子。', '-🐼 🙋 🎋'),
       L('谁有竹子？爸爸有竹子。', '👨 🎋'),
       L('爸爸给小明竹子。', '👨 🎋 ➡️ 👦'),
-      L('小明给小熊猫竹子。', '👦 🎋 ➡️ -🐼'),
+      L('小明给小熊猫竹子。', '👦 🎋 ➡️ -🐼',
+        [Q('小明给大熊猫竹子吗？', yesNo(), 1), Q('小明给大熊猫还是小熊猫？', opts('+🐼', '-🐼'), 1)]),
       L('小红也给大熊猫竹子。', '👧 🎋 ➡️ +🐼'),
       L('熊猫吃了！熊猫很喜欢吃竹子。', '🐼 😋 🎋'),
       L('下雨了！今天下雨了。', '🌧️'),
-      L('下雨了，小明和小红在车上。', '🌧️ · 👦 👧 🚗'),
+      L('下雨了，小明和小红在车上。', '🌧️ · 👦 👧 🚗',
+        [Q('小明和小红在家吗？', yesNo(), 1), Q('小明和小红在车上还是在家？', opts('🚗', '🏠'), 0)]),
       L('今天小明和小红看了熊猫。', '👦 👧 👀 🐼'),
     ],
     questions: [

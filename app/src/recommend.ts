@@ -1,4 +1,4 @@
-import { STORIES, type Story } from './data/stories'
+import { STORIES, type Question, type Story } from './data/stories'
 import { tokenize } from './data/tokenize'
 import { statsFor, type Progress, type StoriesDone } from './progress'
 
@@ -32,16 +32,17 @@ const swap = (s: string) => s.replace(/小明|小红|妈妈|爸爸|👦|👧|�
 
 /** Same story, cast swapped (小明↔小红, 妈妈↔爸爸) so a re-listen isn't word-for-word identical. */
 export function retold(story: Story): Story {
+  const swapQ = (q: Question): Question => ({
+    ...q,
+    q: swap(q.q),
+    pic: q.pic && swap(q.pic),
+    options: q.options.map((o) => ({ ...o, pic: swap(o.pic) })),
+  })
   return {
     ...story,
     title: swap(story.title),
-    lines: story.lines.map((l) => ({ zh: swap(l.zh), pic: swap(l.pic) })),
-    questions: story.questions.map((q) => ({
-      ...q,
-      q: swap(q.q),
-      pic: q.pic && swap(q.pic),
-      options: q.options.map((o) => ({ ...o, pic: swap(o.pic) })),
-    })),
+    lines: story.lines.map((l) => ({ zh: swap(l.zh), pic: swap(l.pic), ask: l.ask?.map(swapQ) })),
+    questions: story.questions.map(swapQ),
   }
 }
 

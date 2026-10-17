@@ -206,3 +206,11 @@ nav button.active, .scenes button.active { background: var(--accent); border-col
 .card.ear { aspect-ratio: auto; min-height: 110px; }
 .card.ear .mark { font-size: 44px; font-weight: 700; line-height: 1; }
 .ear-options.sound .mark { font-size: 30px; }
+
+/* Circling questions + grammar notes */
+.ask { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+.ask .options { margin-top: 4px; width: 100%; }
+.ask .link { margin-top: 4px; }
+.note { max-width: 520px; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; }
+.note summary { cursor: pointer; color: var(--muted); }
+.note p { margin: 8px 0 0; line-height: 1.6; }

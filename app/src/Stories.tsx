@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { STORIES, type Story } from './data/stories'
+import { STORIES, type Question, type Story } from './data/stories'
 import { toPinyin, tokenize } from './data/tokenize'
 import type { Progress, StoriesDone } from './progress'
 import { recommendStory, speakFirstLine, versionFor } from './recommend'
@@ -83,6 +83,9 @@ export function StoryPlayer({ story, showText, say, onHeardText, onComplete, onE
   const [cards] = useState(() => shuffle(order))
   const [placed, setPlaced] = useState(0)
   const [shake, setShake] = useState<number | null>(null)
+  // Circling: questions asked right after a line; `resume` continues auto-play afterwards.
+  const [asking, setAsking] = useState<{ line: number; qi: number; wrong: number[]; resume: boolean } | null>(null)
+  const asked = useRef(new Set<number>())
   // Bumped on every navigation so a finished utterance from an old line can't auto-advance.
   const playId = useRef(0)
 
@@ -96,8 +99,18 @@ export function StoryPlayer({ story, showText, say, onHeardText, onComplete, onE
     setLine(i)
     const text = story.lines[i].zh
     await speakAndCount(text, { onWord: (c) => id === playId.current && setHl(emojiAt(text, c)) })
-    if (id === playId.current) setHl(null)
-    if (!continueAuto || id !== playId.current) return
+    if (id !== playId.current) return
+    setHl(null)
+    if (story.lines[i].ask && !asked.current.has(i)) {
+      asked.current.add(i)
+      setAsking({ line: i, qi: 0, wrong: [], resume: continueAuto })
+      speakAndCount(story.lines[i].ask![0].q, { vary: true })
+      return
+    }
+    if (continueAuto) continueFrom(i, id)
+  }
+
+  async function continueFrom(i: number, id: number) {
     if (i + 1 < story.lines.length) {
       await new Promise((r) => setTimeout(r, 600))
       if (id === playId.current) playLine(i + 1, true)
@@ -106,8 +119,32 @@ export function StoryPlayer({ story, showText, say, onHeardText, onComplete, onE
     }
   }
 
+  async function answerAsk(k: number) {
+    const a = asking
+    if (!a || busy || a.wrong.includes(k)) return
+    const asks = story.lines[a.line].ask!
+    const q = asks[a.qi]
+    setBusy(true)
+    if (k === q.answer) {
+      // Restate the fact: one more repetition of the line.
+      await speakAndCount(`对！${story.lines[a.line].zh}`)
+      if (a.qi + 1 < asks.length) {
+        setAsking({ ...a, qi: a.qi + 1, wrong: [] })
+        speakAndCount(asks[a.qi + 1].q, { vary: true })
+      } else {
+        setAsking(null)
+        if (a.resume) continueFrom(a.line, ++playId.current)
+      }
+    } else {
+      setAsking({ ...a, wrong: [...a.wrong, k] })
+      await speakAndCount(`不对。${q.q}`, { vary: true })
+    }
+    setBusy(false)
+  }
+
   function go(i: number) {
     setAuto(false)
+    setAsking(null)
     if (i >= story.lines.length) return startQuiz()
     playLine(Math.max(0, i), false)
   }
@@ -116,6 +153,7 @@ export function StoryPlayer({ story, showText, say, onHeardText, onComplete, onE
     if (auto) {
       playId.current++
       setAuto(false)
+      setAsking(null)
       setHl(null)
     } else {
       setAuto(true)
@@ -193,6 +231,12 @@ export function StoryPlayer({ story, showText, say, onHeardText, onComplete, onE
         <div className="center">
           <div className="stars">{'⭐'.repeat(firstTry)}{'☆'.repeat(story.questions.length - firstTry)}</div>
           <p className="hint">{firstTry} / {story.questions.length} questions right on the first try</p>
+          {story.note && (
+            <details className="note">
+              <summary>💡 How it works</summary>
+              <p>{story.note}</p>
+            </details>
+          )}
           <button className="primary" onClick={onExit}>{exitLabel}</button>
         </div>
       </div>
@@ -254,6 +298,18 @@ export function StoryPlayer({ story, showText, say, onHeardText, onComplete, onE
       <div className="center">
         <Pic pic={l.pic} className="stage" highlight={hl} />
         {showText && <Caption zh={l.zh} />}
+        {asking ? (
+          <AskPanel
+            q={l.ask![asking.qi]}
+            wrong={asking.wrong}
+            showText={showText}
+            busy={busy}
+            onAnswer={answerAsk}
+            onAgain={() => say(l.ask![asking.qi].q, { vary: true })}
+            onSkip={() => go(line + 1)}
+          />
+        ) : (
+        <>
         <div className="player">
           <button className="secondary" onClick={() => go(line - 1)} disabled={line === 0}>⏮</button>
           <button className="secondary" onClick={() => go(line)}>🔊</button>
@@ -266,7 +322,37 @@ export function StoryPlayer({ story, showText, say, onHeardText, onComplete, onE
           ))}
         </div>
         <Echo key={line} text={l.zh} say={say} />
+        </>
+        )}
       </div>
+    </div>
+  )
+}
+
+type AskProps = {
+  q: Question
+  wrong: number[]
+  showText: boolean
+  busy: boolean
+  onAnswer: (i: number) => void
+  onAgain: () => void
+  onSkip: () => void
+}
+
+function AskPanel({ q, wrong, showText, busy, onAnswer, onAgain, onSkip }: AskProps) {
+  return (
+    <div className="ask">
+      {showText && <Caption zh={q.q} />}
+      <button className="secondary" onClick={onAgain} disabled={busy}>🔊 Again</button>
+      <div className="options">
+        {q.options.map((o, i) => (
+          <button key={i} className={`card ${wrong.includes(i) ? 'wrong' : ''}`} onClick={() => onAnswer(i)} disabled={wrong.includes(i)}>
+            <Pic pic={o.pic} />
+            {showText && o.say && <span className="hanzi">{o.say}</span>}
+          </button>
+        ))}
+      </div>
+      <button className="link" onClick={onSkip}>skip</button>
     </div>
   )
 }
