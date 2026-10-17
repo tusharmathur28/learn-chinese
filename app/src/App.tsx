@@ -67,8 +67,9 @@ export default function App() {
 
       {!voiceOk && (
         <div className="warn">
-          No Chinese voice found in this browser. Open the app in <b>Microsoft Edge</b> (best free voices), or add
-          “Chinese (Simplified)” under Windows Settings → Time &amp; language → Speech.
+          No Chinese voice found. <b>Windows:</b> use Microsoft Edge, or add “Chinese (Simplified)” under Settings → Time
+          &amp; language → Speech. <b>iPhone:</b> Settings → Accessibility → Spoken Content → Voices → Chinese.{' '}
+          <b>Android:</b> Settings → Text-to-speech → install Chinese voice data.
         </div>
       )}
 

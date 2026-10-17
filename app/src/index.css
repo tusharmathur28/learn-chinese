@@ -8,6 +8,9 @@
   --right: #2e9e5b;
   --wrong: #d9534f;
   --heard: #f3c969;
+  --warn-bg: #fff3cd;
+  --warn-text: #664d03;
+  --warn-border: #ffe69c;
   font-family: system-ui, 'Microsoft YaHei', 'PingFang SC', sans-serif;
   color: var(--text);
   background: var(--bg);
@@ -21,6 +24,9 @@
     --muted: #a69c93;
     --border: #3a3531;
     --heard: #8a6d23;
+    --warn-bg: #3a3017;
+    --warn-text: #f5dc8e;
+    --warn-border: #6b5a22;
   }
 }
 
@@ -45,7 +51,7 @@ nav button.active, .scenes button.active { background: var(--accent); border-col
 .toggles { display: flex; gap: 14px; margin-left: auto; color: var(--muted); font-size: 14px; }
 
 .warn {
-  background: #fff3cd; color: #664d03; border: 1px solid #ffe69c; border-radius: 8px;
+  background: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-border); border-radius: 8px;
   padding: 10px 14px; margin-bottom: 12px; font-size: 14px;
 }
 

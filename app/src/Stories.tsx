@@ -14,12 +14,20 @@ type Props = {
 export function Stories(props: Props) {
   const [open, setOpen] = useState<Story | null>(null)
 
+  // iOS Safari only allows speech started synchronously inside a tap handler,
+  // so the first line is spoken here rather than after the player mounts.
+  function openStory(s: Story) {
+    props.onHeardText(s.lines[0].zh)
+    props.say(s.lines[0].zh)
+    setOpen(s)
+  }
+
   if (open) return <StoryPlayer key={open.id} story={open} {...props} onExit={() => setOpen(null)} />
 
   return (
     <div className="story-list">
       {STORIES.map((s, i) => (
-        <button key={s.id} className="story-card" onClick={() => setOpen(s)}>
+        <button key={s.id} className="story-card" onClick={() => openStory(s)}>
           <span className="emoji">{s.cover}</span>
           <span className="hanzi">{s.title}</span>
           <small>
@@ -111,14 +119,13 @@ function StoryPlayer({ story, showText, say, onHeardText, onComplete, onExit }: 
     setBusy(false)
   }
 
-  // Start narrating as soon as the story opens (the click that opened it counts as a user gesture).
+  // The first line is spoken by the click that opened the story (see open() above);
+  // here we only stop any auto-advance when leaving the story.
   useEffect(() => {
     const ref = playId
-    playLine(0, false)
     return () => {
       ref.current++
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const header = (
