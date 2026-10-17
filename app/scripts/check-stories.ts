@@ -2,8 +2,10 @@
 // 1. Every sentence uses only vocabulary words (so pinyin + exposure tracking work).
 // 2. Every story word is encountered at least MIN_ENCOUNTERS times across all stories.
 // 3. Question answers point at a real option.
+// 4. Every vocabulary word's pinyin splits into one syllable per character.
 import { STORIES } from '../src/data/stories.ts'
-import { tokenize } from '../src/data/tokenize.ts'
+import { tokenize, VOCAB } from '../src/data/tokenize.ts'
+import { syllables } from '../src/data/pinyin.ts'
 import { STORY_WORDS } from '../src/data/words.ts'
 
 const MIN_ENCOUNTERS = 10
@@ -27,6 +29,14 @@ for (const s of STORIES) {
 for (const w of STORY_WORDS) {
   const n = counts.get(w.id) ?? 0
   if (n < MIN_ENCOUNTERS) errors.push(`"${w.hanzi}" only appears ${n}× (need ${MIN_ENCOUNTERS})`)
+}
+
+for (const w of VOCAB) {
+  try {
+    syllables(w.hanzi, w.pinyin)
+  } catch (e) {
+    errors.push((e as Error).message)
+  }
 }
 
 const lines = STORIES.reduce((n, s) => n + s.lines.length, 0)

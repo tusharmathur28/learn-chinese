@@ -28,11 +28,3 @@ export function tokenize(text: string): Token[] {
   }
   return out
 }
-
-/** Dictionary pinyin per word (tone sandhi of 一/不 is not applied). */
-export function toPinyin(text: string): string {
-  return tokenize(text)
-    .map((t) => (t.word ? ' ' + t.word.pinyin : t.text))
-    .join('')
-    .trim()
-}

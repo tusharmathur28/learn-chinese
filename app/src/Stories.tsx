@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { STORIES, type Question, type Story } from './data/stories'
-import { toPinyin, tokenize } from './data/tokenize'
+import { tokenize } from './data/tokenize'
+import { toPinyin } from './data/pinyin'
 import type { Progress, StoriesDone } from './progress'
 import { recommendStory, speakFirstLine, versionFor } from './recommend'
 import type { SpeakOptions } from './speech'

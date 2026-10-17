@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { pitchTrack } from './pitch'
+import { ToneChart } from './ToneChart'
 
 type Props = { text: string; say: (text: string) => Promise<void> }
 
@@ -10,6 +12,7 @@ type Props = { text: string; say: (text: string) => Promise<void> }
 export function Echo({ text, say }: Props) {
   const [state, setState] = useState<'idle' | 'recording' | 'ready' | 'error'>('idle')
   const [url, setUrl] = useState<string | null>(null)
+  const [track, setTrack] = useState<(number | null)[] | null>(null)
   const recorder = useRef<MediaRecorder | null>(null)
 
   useEffect(
@@ -28,8 +31,11 @@ export function Echo({ text, say }: Props) {
       r.ondataavailable = (e) => chunks.push(e.data)
       r.onstop = () => {
         stream.getTracks().forEach((t) => t.stop())
-        setUrl(URL.createObjectURL(new Blob(chunks, { type: r.mimeType })))
+        const blob = new Blob(chunks, { type: r.mimeType })
+        setUrl(URL.createObjectURL(blob))
         setState('ready')
+        setTrack(null)
+        pitchTrack(blob).then(setTrack, () => setTrack(null))
       }
       r.start()
       recorder.current = r
@@ -43,6 +49,7 @@ export function Echo({ text, say }: Props) {
   if (state === 'error') return <p className="hint">Microphone not available.</p>
 
   return (
+    <>
     <div className="echo">
       {state === 'recording' ? (
         <button className="secondary rec" onClick={() => recorder.current?.stop()}>⏹ Stop</button>
@@ -58,5 +65,7 @@ export function Echo({ text, say }: Props) {
         </>
       )}
     </div>
+    {state === 'ready' && track && <ToneChart text={text} track={track} />}
+    </>
   )
 }
