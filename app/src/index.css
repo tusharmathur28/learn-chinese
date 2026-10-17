@@ -129,3 +129,72 @@ nav button.active, .scenes button.active { background: var(--accent); border-col
   .pic { font-size: 40px; }
   .options { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* Word highlight while speaking ("pointing") */
+.pic > span { transition: transform 0.15s, filter 0.15s; display: inline-block; }
+.pic .hl { transform: scale(1.25); filter: drop-shadow(0 0 10px var(--heard)); }
+.pic .big.hl { transform: scale(1.12); }
+
+/* Echo (repeat after me) */
+.echo { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.echo .rec { border-color: var(--wrong); color: var(--wrong); animation: pulse 1s infinite; }
+
+/* Story order step */
+.order-slots { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.slot {
+  min-width: 72px; min-height: 72px; padding: 6px; display: flex; align-items: center; justify-content: center;
+  border: 2px dashed var(--border); border-radius: 14px; background: var(--surface);
+}
+.slot .pic { font-size: 28px; }
+.slot-num { color: var(--muted); font-size: 22px; }
+.options .card { aspect-ratio: auto; min-height: 110px; padding: 10px; }
+.story-card.next { border-color: var(--accent); }
+.shake { animation: shake 0.4s; border-color: var(--wrong); }
+
+/* Today */
+.steps { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 16px; font-size: 14px; }
+.steps > span { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+.steps .on { border-color: var(--accent); color: var(--text); font-weight: 600; }
+.steps .done { color: var(--right); border-color: var(--right); }
+.steps .today-time { margin-left: auto; border: none; }
+.link { background: none; border: none; color: var(--muted); text-decoration: underline; margin-top: 20px; }
+
+/* Do it: actions are shown by animation */
+.card { overflow: hidden; }
+.card.demo { width: 200px; }
+.card.demo .emoji { font-size: 110px; }
+.anim-jump { animation: jump 0.7s ease-in-out infinite; }
+.anim-run { animation: run 1s ease-in-out infinite; }
+.anim-spin { animation: spin 1.2s linear infinite; }
+.anim-sleep { animation: breathe 2.4s ease-in-out infinite; }
+.anim-laugh { animation: wiggle 0.35s ease-in-out infinite; }
+.anim-cry { animation: shiver 0.15s linear infinite; }
+.anim-clap { animation: clap 0.45s ease-in-out infinite; }
+.anim-wave { animation: wave 0.6s ease-in-out infinite; transform-origin: 70% 80%; }
+@keyframes jump { 0%, 100% { transform: translateY(15%); } 50% { transform: translateY(-25%); } }
+@keyframes run { 0%, 100% { transform: translateX(25%); } 50% { transform: translateX(-25%); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.08); opacity: 1; } }
+@keyframes wiggle { 0%, 100% { transform: rotate(-12deg); } 50% { transform: rotate(12deg); } }
+@keyframes shiver { 0%, 100% { transform: translateX(-3px); } 50% { transform: translateX(3px); } }
+@keyframes clap { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.75); } }
+@keyframes wave { 0%, 100% { transform: rotate(-15deg); } 50% { transform: rotate(25deg); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+@keyframes pulse { 50% { opacity: 0.5; } }
+
+/* Give */
+.people, .items { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+.items { margin-top: 28px; }
+.card.person { position: relative; }
+.card.person.target { border-style: dashed; border-color: var(--accent); }
+.card.item { touch-action: none; user-select: none; position: relative; }
+.card.item.selected { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); }
+.received { position: absolute; right: 8%; bottom: 8%; font-size: 32px; }
+.item-gone { aspect-ratio: 1; }
+
+@media (max-width: 600px) {
+  .people, .items { gap: 6px; }
+  .card.person .emoji, .card.item .emoji { font-size: 36px; }
+  .received { font-size: 22px; }
+  .steps .today-time { margin-left: 0; }
+}

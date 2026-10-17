@@ -2,14 +2,18 @@ import { useState } from 'react'
 import type { Word } from './data/words'
 import { statsFor, type Progress } from './progress'
 import { WordCard } from './WordCard'
+import type { Say } from './Stories'
 
 type Props = {
   pool: Word[]
   progress: Progress
   showText: boolean
-  say: (text: string) => Promise<void>
+  say: Say
   onHeard: (w: Word) => void
   onAnswer: (w: Word, firstTry: boolean) => void
+  /** In a daily session: stop after this many words and call onDone. */
+  rounds?: number
+  onDone?: () => void
 }
 
 type Round = { target: Word; options: Word[]; wrong: string[] }
@@ -31,17 +35,18 @@ function newRound(pool: Word[], progress: Progress, lastId?: string): Round {
 }
 
 /** "Show me" — hear a word, tap the matching picture. Answer by action, not speech. */
-export function ShowMe({ pool, progress, showText, say, onHeard, onAnswer }: Props) {
+export function ShowMe({ pool, progress, showText, say, onHeard, onAnswer, rounds, onDone }: Props) {
   const [round, setRound] = useState<Round | null>(null)
   const [solved, setSolved] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [count, setCount] = useState(0)
 
   async function start(last?: string) {
     const r = newRound(pool, progress, last)
     setRound(r)
     setSolved(false)
     onHeard(r.target)
-    await say(prompt(r.target))
+    await say(prompt(r.target), { vary: true })
   }
 
   async function pick(w: Word) {
@@ -51,15 +56,17 @@ export function ShowMe({ pool, progress, showText, say, onHeard, onAnswer }: Pro
       setSolved(true)
       onAnswer(w, round.wrong.length === 0)
       onHeard(w)
-      await say(`对！${w.hanzi}。`)
+      await say(`对！${w.hanzi}。`, { vary: true })
       setBusy(false)
-      await start(w.id)
+      setCount(count + 1)
+      if (rounds && count + 1 >= rounds) onDone?.()
+      else await start(w.id)
     } else {
       // A wrong tap is still input: name what they tapped, then ask again.
       setRound({ ...round, wrong: [...round.wrong, w.id] })
       onHeard(w)
       onHeard(round.target)
-      await say(`这是${w.hanzi}。${round.target.hanzi}在哪儿？`)
+      await say(`这是${w.hanzi}。${round.target.hanzi}在哪儿？`, { vary: true })
       setBusy(false)
     }
   }
@@ -79,7 +86,7 @@ export function ShowMe({ pool, progress, showText, say, onHeard, onAnswer }: Pro
   return (
     <div>
       <div className="center">
-        <button className="secondary" onClick={() => say(prompt(round.target))} disabled={busy}>
+        <button className="secondary" onClick={() => say(prompt(round.target), { vary: true })} disabled={busy}>
           🔊 Again
         </button>
       </div>

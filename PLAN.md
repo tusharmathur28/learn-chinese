@@ -110,6 +110,16 @@ Content (scenes, stories, words)  ──►  Learner model (per-word exposures/r
 - Milestone 2 built — 10 narrated picture stories (128 lines, 41 new story words), tap-to-answer questions.
   `npm --prefix app run check:stories` enforces: only known vocab in every line, every story word ≥10 encounters.
   Pinyin is generated from the vocab list (no 一/不 tone sandhi in the display; audio is correct).
+- Kid-like learning upgrades:
+  - ☀️ Today: guided session (warm-up → Do it → story → Give), no menus.
+  - Story re-listening: "next" story alternates new vs. a finished one with not-yet-sticky words (<10 hears);
+    every second listen is retold with the cast swapped (小明↔小红, 妈妈↔爸爸).
+  - Joint attention: the emoji for the word being spoken lights up (real word boundaries if the voice gives them, else estimated).
+  - 👋 Do it (TPR): 8 action verbs shown by animation first, then picked; 摸摸 + body-part commands.
+  - 🤲 Give: 把X给Y — drag (or tap-tap) the thing to the person.
+  - Voice variety: games/questions use a random zh-CN voice when the device has several.
+  - 🎙️ Echo: opt-in record & compare per story line (no scoring, nothing uploaded).
+  - Story order step after questions; 🎧 listening time tracked per day.
 Run: `npm --prefix app run dev`, open http://localhost:5173 in Edge.
 
 ## Sources

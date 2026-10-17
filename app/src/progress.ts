@@ -5,6 +5,7 @@ export type Progress = Record<string, WordStats>
 
 const KEY = 'learnchinese.progress.v1'
 const STORIES_KEY = 'learnchinese.stories.v1'
+const TIME_KEY = 'learnchinese.listening.v1'
 /** Correct first-try answers in a row before a word counts as known. */
 export const KNOWN_STREAK = 3
 
@@ -31,6 +32,17 @@ export const saveProgress = (p: Progress) => save(KEY, p)
 export type StoriesDone = Record<string, number>
 export const loadStoriesDone = (): StoriesDone => load<StoriesDone>(STORIES_KEY)
 export const saveStoriesDone = (s: StoriesDone) => save(STORIES_KEY, s)
+
+/** Seconds of Chinese audio heard, per local date (YYYY-MM-DD). */
+export type ListeningLog = Record<string, number>
+export const loadListening = (): ListeningLog => load<ListeningLog>(TIME_KEY)
+export const saveListening = (l: ListeningLog) => save(TIME_KEY, l)
+export const today = () => new Date().toLocaleDateString('en-CA')
+
+export function formatMinutes(seconds: number) {
+  const m = Math.round(seconds / 60)
+  return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`
+}
 
 export const statsFor = (p: Progress, id: string): WordStats =>
   p[id] ?? { heard: 0, correct: 0, wrong: 0, streak: 0 }
