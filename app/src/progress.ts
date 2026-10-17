@@ -8,6 +8,8 @@ const STORIES_KEY = 'learnchinese.stories.v1'
 const TIME_KEY = 'learnchinese.listening.v1'
 /** Correct first-try answers in a row before a word counts as known. */
 export const KNOWN_STREAK = 3
+/** Hearing a word this many times is roughly when it sticks (research: 10–30 encounters). */
+export const STICKY = 10
 
 function load<T>(key: string): T | Record<string, never> {
   try {

@@ -1,10 +1,10 @@
-import { ALL_WORDS, STORY_WORDS, type Word } from './words.ts'
+import { ALL_WORDS, CHUNK_WORDS, STORY_WORDS, type Word } from './words.ts'
 import { GAME_WORDS } from './actions.ts'
 
-export const VOCAB: Word[] = [...ALL_WORDS, ...STORY_WORDS, ...GAME_WORDS]
+export const VOCAB: Word[] = [...ALL_WORDS, ...STORY_WORDS, ...CHUNK_WORDS, ...GAME_WORDS]
 const BY_HANZI = new Map(VOCAB.map((w) => [w.hanzi, w]))
 const MAX_LEN = Math.max(...VOCAB.map((w) => w.hanzi.length))
-const PUNCT = /[，。？！、\s]/
+const PUNCT = /[，。？！、：“”\s]/
 
 /** A piece of text: a vocab word, punctuation, or (if content is broken) an unknown character. */
 export type Token = { text: string; word?: Word; unknown?: boolean }

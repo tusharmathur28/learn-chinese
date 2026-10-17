@@ -6,6 +6,7 @@
 import { STORIES } from '../src/data/stories.ts'
 import { tokenize, VOCAB } from '../src/data/tokenize.ts'
 import { syllables } from '../src/data/pinyin.ts'
+import { generateStory } from '../src/data/generate.ts'
 import { STORY_WORDS } from '../src/data/words.ts'
 
 const MIN_ENCOUNTERS = 10
@@ -29,6 +30,22 @@ for (const s of STORIES) {
 for (const w of STORY_WORDS) {
   const n = counts.get(w.id) ?? 0
   if (n < MIN_ENCOUNTERS) errors.push(`"${w.hanzi}" only appears ${n}× (need ${MIN_ENCOUNTERS})`)
+}
+
+// 5. Generated mini-stories only use vocabulary and have valid answers (sampled).
+const seen = new Set<string>()
+for (let i = 0; i < 500; i++) {
+  const s = generateStory({})
+  for (const q of [...s.questions, ...s.lines.flatMap((l) => l.ask ?? [])]) {
+    if (q.answer < 0 || q.answer >= q.options.length) errors.push(`[generated] answer out of range: ${q.q}`)
+    if (new Set(q.options.map((o) => o.pic)).size !== q.options.length) errors.push(`[generated] duplicate options: ${q.q}`)
+    for (const t of tokenize(q.q)) if (t.unknown && !seen.has(q.q)) errors.push(`[generated] unknown "${t.text}" in: ${q.q}`)
+    seen.add(q.q)
+  }
+  for (const l of s.lines) {
+    for (const t of tokenize(l.zh)) if (t.unknown && !seen.has(l.zh)) errors.push(`[generated] unknown "${t.text}" in: ${l.zh}`)
+    seen.add(l.zh)
+  }
 }
 
 for (const w of VOCAB) {

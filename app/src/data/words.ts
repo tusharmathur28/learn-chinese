@@ -65,3 +65,6 @@ export const STORY_WORDS: Word[] = [
   w('今天', 'jīntiān', ''), w('给', 'gěi', '🫴'), w('竹子', 'zhúzi', '🎋'),
   w('还是', 'háishi', ''),
 ]
+
+/** Words that arrive with dialogue chunks in generated stories (我想吃…, 你要喝什么？, 给你！). */
+export const CHUNK_WORDS: Word[] = [w('说', 'shuō', '💬'), w('我', 'wǒ', ''), w('你', 'nǐ', ''), w('想', 'xiǎng', '💭')]

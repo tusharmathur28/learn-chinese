@@ -1,9 +1,8 @@
-import { ALL_WORDS, SCENES, STORY_WORDS, type Word } from './data/words'
+import { ALL_WORDS, CHUNK_WORDS, SCENES, STORY_WORDS, type Word } from './data/words'
 import { ACTIONS } from './data/actions'
 import { pairId, SOUND_PAIRS, toneId } from './data/ears'
 import { VOCAB } from './data/tokenize'
-import { formatMinutes, isKnown, statsFor, today, type ListeningLog, type Progress } from './progress'
-import { STICKY } from './recommend'
+import { formatMinutes, isKnown, STICKY, statsFor, today, type ListeningLog, type Progress } from './progress'
 
 type Props = { progress: Progress; listening: ListeningLog; onHear: (w: Word) => void; onReset: () => void }
 
@@ -45,7 +44,7 @@ export function ProgressView({ progress, listening, onHear, onReset }: Props) {
       <section>
         <h3>📖 故事 <span className="pinyin">gùshi</span> — story words (sticky after {STICKY}×)</h3>
         <div className="progress-list">
-          {STORY_WORDS.map((w) => {
+          {[...STORY_WORDS, ...CHUNK_WORDS].map((w) => {
             const n = statsFor(progress, w.id).heard
             return (
               <button key={w.id} className={`chip ${n >= STICKY ? 'known' : n > 0 ? 'heard' : 'new'}`} onClick={() => onHear(w)}>

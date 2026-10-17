@@ -1,9 +1,7 @@
 import { STORIES, type Question, type Story } from './data/stories'
 import { tokenize } from './data/tokenize'
-import { statsFor, type Progress, type StoriesDone } from './progress'
-
-/** Hearing a word this many times is roughly when it sticks (research: 10–30 encounters). */
-export const STICKY = 10
+import { STICKY, statsFor, type Progress, type StoriesDone } from './progress'
+import { generateStory } from './data/generate'
 
 /** Distinct words in a story you haven't heard enough yet. */
 export function weakWords(story: Story, progress: Progress): number {
@@ -22,7 +20,8 @@ export function recommendStory(progress: Progress, done: StoriesDone): Story {
   )[0]
   const total = Object.values(done).reduce((n, x) => n + x, 0)
   if (review && (!firstNew || total % 2 === 1)) return review
-  return firstNew ?? [...STORIES].sort((a, b) => done[a.id] - done[b.id])[0]
+  // All hand-written stories heard: fresh generated mini-stories from here on.
+  return firstNew ?? generateStory(progress)
 }
 
 const SWAP: Record<string, string> = {

@@ -4,6 +4,7 @@ import { tokenize } from './data/tokenize'
 import { toPinyin } from './data/pinyin'
 import type { Progress, StoriesDone } from './progress'
 import { recommendStory, speakFirstLine, versionFor } from './recommend'
+import { generateStory } from './data/generate'
 import type { SpeakOptions } from './speech'
 import { Echo } from './Echo'
 import { Pic } from './Pic'
@@ -33,6 +34,11 @@ export function Stories(props: Props) {
 
   return (
     <div className="story-list">
+      <button className="story-card next" onClick={() => openStory(generateStory(props.progress))}>
+        <span className="emoji">✨</span>
+        <span className="hanzi">小故事</span>
+        <small>new mini-story from words you know</small>
+      </button>
       {STORIES.map((s, i) => (
         <button key={s.id} className={`story-card ${s.id === next.id ? 'next' : ''}`} onClick={() => openStory(s)}>
           <span className="emoji">{s.cover}</span>

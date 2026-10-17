@@ -59,6 +59,7 @@ export default function App() {
   const onAnswer = (w: Word, first: boolean) => update((p) => answered(p, w.id, first))
   const onEar = (id: string, first: boolean) => update((p) => answered(p, id, first))
   const onStoryComplete = (id: string) =>
+    !id.startsWith('gen-') && // generated stories are one-offs; don't track them
     setStoriesDone((s) => {
       const next = { ...s, [id]: (s[id] ?? 0) + 1 }
       saveStoriesDone(next)
