@@ -198,3 +198,11 @@ nav button.active, .scenes button.active { background: var(--accent); border-col
   .received { font-size: 22px; }
   .steps .today-time { margin-left: 0; }
 }
+
+/* Ears */
+.ear-options { display: grid; gap: 12px; width: 100%; max-width: 520px; margin-top: 8px; }
+.ear-options.tone { grid-template-columns: repeat(4, 1fr); }
+.ear-options.sound { grid-template-columns: repeat(2, 1fr); }
+.card.ear { aspect-ratio: auto; min-height: 110px; }
+.card.ear .mark { font-size: 44px; font-weight: 700; line-height: 1; }
+.ear-options.sound .mark { font-size: 30px; }

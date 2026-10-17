@@ -10,17 +10,18 @@ import { Explore } from './Explore'
 import { ShowMe } from './ShowMe'
 import { DoIt } from './DoIt'
 import { Give } from './Give'
+import { Ears } from './Ears'
 import { ProgressView } from './ProgressView'
 import { Stories } from './Stories'
 import { Today } from './Today'
 
 type Tab = 'today' | 'explore' | 'games' | 'stories' | 'progress'
-type Game = 'showme' | 'doit' | 'give'
+type Game = 'ears' | 'showme' | 'doit' | 'give'
 
 const TABS: Record<Tab, string> = {
   today: '☀️ Today', explore: '👂 Explore', games: '🎮 Games', stories: '📖 Stories', progress: '📈 Progress',
 }
-const GAMES: Record<Game, string> = { showme: '👆 Show me', doit: '👋 Do it', give: '🤲 Give' }
+const GAMES: Record<Game, string> = { ears: '👂 Ears', showme: '👆 Show me', doit: '👋 Do it', give: '🤲 Give' }
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('today')
@@ -56,6 +57,7 @@ export default function App() {
   const onHeardText = (text: string) =>
     update((p) => tokenize(text).reduce((acc, t) => (t.word ? heard(acc, t.word.id) : acc), p))
   const onAnswer = (w: Word, first: boolean) => update((p) => answered(p, w.id, first))
+  const onEar = (id: string, first: boolean) => update((p) => answered(p, id, first))
   const onStoryComplete = (id: string) =>
     setStoriesDone((s) => {
       const next = { ...s, [id]: (s[id] ?? 0) + 1 }
@@ -132,11 +134,13 @@ export default function App() {
             storiesDone={storiesDone}
             listenedToday={listening[today()] ?? 0}
             onHeard={onHeard}
+            onEar={onEar}
             onStoryComplete={onStoryComplete}
           />
         )}
         {tab === 'explore' && <Explore scene={scene ?? SCENES[0]} showText={showText} onHear={hear} />}
         {tab === 'games' && game === 'showme' && <ShowMe key={sceneId} {...gameProps} pool={pool} onHeard={onHeard} />}
+        {tab === 'games' && game === 'ears' && <Ears say={say} onEar={onEar} />}
         {tab === 'games' && game === 'doit' && <DoIt {...gameProps} />}
         {tab === 'games' && game === 'give' && <Give {...gameProps} />}
         {tab === 'stories' && (

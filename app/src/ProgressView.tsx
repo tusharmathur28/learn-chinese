@@ -1,5 +1,6 @@
 import { ALL_WORDS, SCENES, STORY_WORDS, type Word } from './data/words'
 import { ACTIONS } from './data/actions'
+import { pairId, SOUND_PAIRS, toneId } from './data/ears'
 import { VOCAB } from './data/tokenize'
 import { formatMinutes, isKnown, statsFor, today, type ListeningLog, type Progress } from './progress'
 import { STICKY } from './recommend'
@@ -52,6 +53,22 @@ export function ProgressView({ progress, listening, onHear, onReset }: Props) {
               </button>
             )
           })}
+        </div>
+      </section>
+      <section>
+        <h3>👂 耳朵 <span className="pinyin">ěrduo</span> — ear training (first-try accuracy)</h3>
+        <div className="progress-list">
+          {[...[1, 2, 3, 4].map((t) => [toneId(t), `tone ${t}`]), ...SOUND_PAIRS.map((p) => [pairId(p), `${p[0].pinyin} / ${p[1].pinyin}`])]
+            .filter(([id]) => statsFor(progress, id).correct + statsFor(progress, id).wrong > 0)
+            .map(([id, label]) => {
+              const st = statsFor(progress, id)
+              const pct = Math.round((100 * st.correct) / (st.correct + st.wrong))
+              return (
+                <span key={id} className={`chip ${pct >= 80 ? 'known' : 'heard'}`}>
+                  {label} <small>{pct}% of {st.correct + st.wrong}</small>
+                </span>
+              )
+            })}
         </div>
       </section>
       <p className="legend">

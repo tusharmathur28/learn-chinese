@@ -3,6 +3,7 @@ import { ALL_WORDS, type Word } from './data/words'
 import { formatMinutes, isKnown, type Progress, type StoriesDone } from './progress'
 import { recommendStory, speakFirstLine, versionFor } from './recommend'
 import { DoIt } from './DoIt'
+import { Ears } from './Ears'
 import { Give } from './Give'
 import { ShowMe } from './ShowMe'
 import { StoryPlayer, type Say } from './Stories'
@@ -16,10 +17,12 @@ type Props = {
   onHeard: (w: Word) => void
   onHeardText: (text: string) => void
   onAnswer: (w: Word, firstTry: boolean) => void
+  onEar: (id: string, firstTry: boolean) => void
   onStoryComplete: (id: string) => void
 }
 
 const STEPS = [
+  { id: 'ears', label: '👂 Ears' },
   { id: 'warm', label: '👆 Warm-up' },
   { id: 'doit', label: '👋 Do it' },
   { id: 'story', label: '📖 Story' },
@@ -61,9 +64,10 @@ export function Today(props: Props) {
         <span className="today-time">🎧 {formatMinutes(props.listenedToday)} today</span>
       </div>
 
-      {step === 0 && <ShowMe key="warm" {...games} pool={pool} onHeard={props.onHeard} rounds={8} />}
-      {step === 1 && <DoIt key="doit" {...games} rounds={6} />}
-      {step === 2 &&
+      {step === 0 && <Ears key="ears" say={say} onEar={props.onEar} rounds={8} onDone={next} />}
+      {step === 1 && <ShowMe key="warm" {...games} pool={pool} onHeard={props.onHeard} rounds={8} />}
+      {step === 2 && <DoIt key="doit" {...games} rounds={6} />}
+      {step === 3 &&
         (storyOpen ? (
           <StoryPlayer
             story={story}
@@ -84,8 +88,8 @@ export function Today(props: Props) {
             <button className="primary" onClick={() => { speakFirstLine(story, props); setStoryOpen(true) }}>▶ Listen</button>
           </div>
         ))}
-      {step === 3 && <Give key="give" {...games} rounds={5} />}
-      {step === 4 && (
+      {step === 4 && <Give key="give" {...games} rounds={5} />}
+      {step === 5 && (
         <div className="center">
           <div className="stars">🌟</div>
           <p>今天很好！ <span className="pinyin">jīntiān hěn hǎo</span></p>
@@ -93,7 +97,7 @@ export function Today(props: Props) {
           <button className="primary" onClick={restart}>🔁 One more round</button>
         </div>
       )}
-      {step < 4 && !(step === 2 && storyOpen) && (
+      {step < STEPS.length && !(STEPS[step].id === 'story' && storyOpen) && (
         <div className="center">
           <button className="link" onClick={next}>skip this step</button>
         </div>
